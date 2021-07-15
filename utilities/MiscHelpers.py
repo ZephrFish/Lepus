@@ -1,4 +1,4 @@
-from slack import WebClient
+from slack_sdk.webhook import WebhookClient
 from datetime import datetime
 from termcolor import colored
 from sqlalchemy.exc import IntegrityError
@@ -230,8 +230,8 @@ def generateURLs(db, domain, portscan, timestamp):
 
 
 def slackNotification(token, channel, text):
-	client = WebClient(token=token)
-	client.chat_postMessage(channel=channel, text=text, username="Lepus", icon_emoji=":rabbit2:")
+	client = WebhookClient(token)
+	client.send(channel=channel, text=text, username="Lepus", icon_emoji=":rabbit2:")
 
 
 def exportFindings(db, domain, old_resolved, interrupt):
