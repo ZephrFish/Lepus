@@ -1,6 +1,6 @@
 [![GitHub License](https://img.shields.io/badge/License-BSD%203--Clause-informational.svg)](https://github.com/GKNSB/Lepus/blob/master/LICENSE)
 [![GitHub Python](https://img.shields.io/badge/Python-%3E=%203.6-informational.svg)](https://www.python.org/)
-[![GitHub Version](https://img.shields.io/badge/Version-3.4.0-green.svg)](https://github.com/GKNSB/Lepus)
+[![GitHub Version](https://img.shields.io/badge/Version-3.4.1-green.svg)](https://github.com/GKNSB/Lepus)
 
 # Lepus
 
@@ -40,24 +40,45 @@ The Collectors mode collects subdomains from the following services:
 
 |Service|API Required|
 |---|:---:|
+|[AlienVault OTX](https://otx.alienvault.com/)|No|
+|[Anubis-DB](https://jonlu.ca/anubis/)|No|
+|[Bevigil](https://bevigil.com/)|Yes|
+|[BinaryEdge](https://www.binaryedge.io/)|Yes|
+|[BufferOver](https://tls.bufferover.run/)|Yes|
+|[C99](https://api.c99.nl/)|Yes|
 |[Censys](https://censys.io/)|Yes|
 |[CertSpotter](https://sslmate.com/certspotter/)|No|
+|[CommonCrawl](https://index.commoncrawl.org/)|No|
 |[CRT](https://crt.sh/)|No|
+|[DNSDumpster](https://dnsdumpster.com/)|No|
+|[DNSRepo](http://dnsrepo.noc.org/)|Yes|
 |[DNSTrails](https://securitytrails.com/dns-trails/)|Yes|
+|[Farsight DNSDB](https://www.farsightsecurity.com/solutions/dnsdb/)|Yes|
 |[FOFA](https://fofa.so/)|Yes|
-|[Google Transparency](https://transparencyreport.google.com/)|No|
+|[Fullhunt](https://fullhunt.io/)|Yes|
 |[HackerTarget](https://hackertarget.com/)|No|
+|[HunterIO](https://hunter.io/)|Yes|
+|[IntelX](https://intelx.io/)|Yes|
+|[LeakIX](https://leakix.net/)|Yes|
+|[Maltiverse](https://maltiverse.com/)|No|
+|[Netlas](https://netlas.io/)|Yes|
 |[PassiveTotal](https://www.riskiq.com/products/passivetotal/)|Yes|
 |[Project Discovery Chaos](https://chaos.projectdiscovery.io/)|Yes|
-|[Project Crobat](https://sonar.omnisint.io/)|No|
-|[Project Sonar](https://www.rapid7.com/research/project-sonar/)|No|
+|[RapidDNS](https://rapiddns.io/)|No|
+|[ReconCloud](https://recon.cloud/)|No|
 |[Riddler](https://riddler.io/)|Yes|
+|[Robtex](https://www.robtex.com/)|Yes|
+|[SecurityTrails](https://securitytrails.com/)|Yes|
 |[Shodan](https://www.shodan.io/)|Yes|
-|[Spyse](https://api-doc.spyse.com/)|Yes|
+|[SiteDossier](http://www.sitedossier.com/)|No|
+|[ThreatBook](https://www.threatbook.cn/)|Yes|
 |[ThreatCrowd](https://www.threatcrowd.org/)|No|
 |[ThreatMiner](https://www.threatminer.org/)|No|
+|[URLScan](https://urlscan.io/)|Yes|
 |[VirusTotal](https://www.virustotal.com/)|Yes|
 |[Wayback Machine](https://archive.org/web/)|No|
+|[Webscout](https://webscout.io/)|No|
+|[WhoisXMLAPI](https://www.whoisxmlapi.com/)|Yes|
 |[ZoomEye](https://www.zoomeye.org/)|Yes|
 
 You can add your API keys in the `config.ini` file.

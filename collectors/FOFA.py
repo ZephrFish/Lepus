@@ -20,14 +20,14 @@ def init(domain):
 		print("  \__", colored("No FOFA API credentials configured", "red"))
 		return []
 
-	size = 10000
+	size = 2000
 	page = 1
 	encodedDomain = b64encode(domain.encode("utf8")).decode("utf8")
 	parameters = {"email": FOFA_EMAIL, "key": FOFA_KEY, "qbase64": encodedDomain, "page": page, "size": size, "full": "true", "fields": "host,title,domain,header,banner,cert"}
 	headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"}
 
 	try:
-		response = requests.get("https://fofa.so/api/v1/search/all", params=parameters, headers=headers)
+		response = requests.get("https://fofa.info/api/v1/search/all", params=parameters, headers=headers)
 
 		if response.status_code == 200 and loads(response.text)["error"] is False:
 			data = loads(response.text)
@@ -43,7 +43,7 @@ def init(domain):
 
 				if page != 1:
 					parameters = {"email": FOFA_EMAIL, "key": FOFA_KEY, "qbase64": encodedDomain, "page": page, "size": size, "full": "true", "fields": "host,title,domain,header,banner,cert"}
-					response = requests.get("https://fofa.so/api/v1/search/all", params=parameters, headers=headers)
+					response = requests.get("https://fofa.info/api/v1/search/all", params=parameters, headers=headers)
 
 				if loads(response.text)["error"] is False:
 					FOFA.extend([item.lower() for item in findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), response.text)])
@@ -57,7 +57,7 @@ def init(domain):
 			return FOFA
 
 		else:
-			print("  \__", colored("Something went wrong!", "red"))
+			print("  \__", colored(response.text, "red"))
 			return []
 
 	except requests.exceptions.RequestException as err:

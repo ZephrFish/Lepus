@@ -1,3 +1,13 @@
+# Version 3.4.1
+
+### --- New Features
+1. Added several more collectors
+2. Made the import of the collector submodules more dynamic
+
+### --- Bug Fixes
+1. Fixed several collectors that had issues with their APIs
+2. Removed certain collectors that had become obsolete/deprecated
+
 # Version 3.4.0
 
 ### --- New Features

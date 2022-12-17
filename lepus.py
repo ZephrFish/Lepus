@@ -5,25 +5,9 @@ from warnings import simplefilter
 from termcolor import colored
 from time import sleep
 from gc import collect
-import collectors.Censys
-import collectors.CertSpotter
-import collectors.CRT
-import collectors.DNSTrails
-import collectors.FOFA
-import collectors.GoogleTransparency
-import collectors.HackerTarget
-import collectors.PassiveTotal
-import collectors.PDChaos
-import collectors.ProjectCrobat
-import collectors.ProjectSonar
-import collectors.Riddler
-import collectors.Shodan
-import collectors.Spyse
-import collectors.ThreatCrowd
-import collectors.ThreatMiner
-import collectors.VirusTotal
-import collectors.WaybackMachine
-import collectors.ZoomEye
+from glob import glob
+import importlib.util
+import sys
 import submodules.Permutations
 import submodules.PortScan
 import submodules.ReverseLookups
@@ -101,25 +85,15 @@ if __name__ == "__main__":
 		else:
 			print()
 			collector_subdomains = []
-			collector_subdomains += collectors.Censys.init(args.domain)
-			collector_subdomains += collectors.CertSpotter.init(args.domain)
-			collector_subdomains += collectors.CRT.init(args.domain)
-			collector_subdomains += collectors.DNSTrails.init(args.domain)
-			collector_subdomains += collectors.FOFA.init(args.domain)
-			collector_subdomains += collectors.GoogleTransparency.init(args.domain)
-			collector_subdomains += collectors.HackerTarget.init(args.domain)
-			collector_subdomains += collectors.PassiveTotal.init(args.domain)
-			collector_subdomains += collectors.PDChaos.init(args.domain)
-			collector_subdomains += collectors.ProjectCrobat.init(args.domain, args.ranges)
-			collector_subdomains += collectors.ProjectSonar.init(args.domain)
-			collector_subdomains += collectors.Riddler.init(args.domain)
-			collector_subdomains += collectors.Shodan.init(args.domain)
-			collector_subdomains += collectors.Spyse.init(args.domain)
-			collector_subdomains += collectors.ThreatCrowd.init(args.domain)
-			collector_subdomains += collectors.ThreatMiner.init(args.domain)
-			collector_subdomains += collectors.VirusTotal.init(args.domain)
-			collector_subdomains += collectors.WaybackMachine.init(args.domain)
-			collector_subdomains += collectors.ZoomEye.init(args.domain)
+			modules = glob("collectors/*.py")
+
+			for module in modules:
+				if not module.endswith("__init__.py") and module[-3:] == ".py":
+					spec = importlib.util.spec_from_file_location("module.name", module)
+					mod = importlib.util.module_from_spec(spec)
+					sys.modules["module.name"] = mod
+					spec.loader.exec_module(mod)
+					collector_subdomains += mod.init(args.domain)
 
 		if args.wordlist:
 			wordlist_subdomains = utilities.MiscHelpers.loadWordlist(args.domain, args.wordlist)

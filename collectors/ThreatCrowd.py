@@ -1,31 +1,39 @@
 import requests
+from http.client import responses
 from json import loads
 from termcolor import colored
+from urllib3.exceptions import InsecureRequestWarning
 
 
 def init(domain):
 	TC = []
 
 	print(colored("[*]-Searching ThreatCrowd...", "yellow"))
+	requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 	try:
-		result = requests.get("https://www.threatcrowd.org/searchApi/v2/domain/report/", params={"domain": domain})
+		result = requests.get("https://www.threatcrowd.org/searchApi/v2/domain/report/", params={"domain": domain}, verify=False)
 
-		try:
-			RES = loads(result.text)
-			resp_code = int(RES["response_code"])
+		if result.status_code == 200:
+			try:
+				RES = loads(result.text)
+				resp_code = int(RES["response_code"])
 
-			if resp_code == 1:
-				for sd in RES["subdomains"]:
-					TC.append(sd)
+				if resp_code == 1:
+					for sd in RES["subdomains"]:
+						TC.append(sd)
 
-			TC = set(TC)
+				TC = set(TC)
 
-			print("  \__ {0}: {1}".format(colored("Subdomains found", "cyan"), colored(len(TC), "yellow")))
-			return TC
+				print("  \__ {0}: {1}".format(colored("Subdomains found", "cyan"), colored(len(TC), "yellow")))
+				return TC
 
-		except ValueError as errv:
-			print("  \__", colored(errv, "red"))
+			except ValueError as errv:
+				print("  \__", colored(errv, "red"))
+				return []
+
+		else:
+			print("  \__", colored("Response: {0} {1}".format(result.status_code, responses[result.status_code]), "red"))
 			return []
 
 	except requests.exceptions.RequestException as err:

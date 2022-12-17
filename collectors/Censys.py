@@ -39,9 +39,13 @@ def init(domain):
 
 				if res.status_code != 200:
 					if loads(res.text)["error_type"] == "max_results":
-						print("  \__", colored("Search result limit reached. See https://www.censys.io/account for search results limit details.", "red"))
+						print("  \__", colored("Search result limit reached.", "red"))
 						break
-					
+
+					elif loads(res.text)["error_type"] == "quota_exceeded":
+						print("  \__", colored("Quota exceeded.", "red"))
+						break
+
 					else:
 						print("  \__ {0} {1} {2}".format(colored("An error occured on page", "red"), colored("{0}:".format(page), "red"), colored(loads(res.text)["error_type"], "red")))
 
