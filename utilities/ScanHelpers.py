@@ -153,13 +153,13 @@ def identifyWildcards(db, findings, domain, threads):
 					exit(-1)
 
 			if iteration < numberOfChunks:
-				stderr.write("\033[F")
-
+				#stderr.write("\033[F")
+				pass
 			iteration += 1
-		
+
 		if findingsChunkIterator < numberOfFindingsChunks:
 			stdout.write("\033[F\033[F")
-		
+
 		findingsChunkIterator += 1
 
 	if wildcards:
@@ -317,8 +317,8 @@ def massResolve(db, findings, domain, hideWildcards, threads):
 				exit(-1)
 
 		if iteration < numberOfChunks:
-			stderr.write("\033[F")
-
+			#stderr.write("\033[F")
+			pass
 		iteration += 1
 
 	for hostname, address, source in resolved:
@@ -446,8 +446,8 @@ def massReverseLookup(db, domain, IPs, threads):
 				exit(-1)
 
 		if iteration < numberOfChunks:
-			stderr.write("\033[F")
-
+			#stderr.write("\033[F")
+			pass
 		iteration += 1
 
 	filtered_subdomains = utilities.MiscHelpers.filterDomain(domain, hostnames)
@@ -597,8 +597,8 @@ def massConnectScan(db, domain, numberOfUniqueIPs, targets, threads, timestamp):
 				exit(-1)
 
 		if iteration < numberOfChunks:
-			stderr.write("\033[F")
-
+			#stderr.write("\033[F")
+			pass
 		iteration += 1
 
 	for open_port in open_ports:
@@ -682,8 +682,8 @@ def massRDAP(db, domain, threads):
 				exit(-1)
 
 		if iteration < numberOfChunks:
-			stderr.write("\033[F")
-
+			#stderr.write("\033[F")
+			pass
 		iteration += 1
 
 	for record in rdap_records:
