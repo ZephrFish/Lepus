@@ -46,6 +46,10 @@ def init(domain):
 						print("  \__", colored("Quota exceeded.", "red"))
 						break
 
+					elif loads(res.text)["error_type"] == "rate_limit_exceeded":
+						print("  \__", colored("Rate-limit exceeded.", "red"))
+						break
+
 					else:
 						print("  \__ {0} {1} {2}".format(colored("An error occured on page", "red"), colored("{0}:".format(page), "red"), colored(loads(res.text)["error_type"], "red")))
 
