@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
 from ipaddress import ip_address, ip_network
 from os import makedirs, listdir, stat, remove
-from utilities.DatabaseHelpers import Record, Wildcard, Resolution, Unresolved, ASN, Network, OpenPort, URL, Takeover
+from utilities.DatabaseHelpers import Record, Wildcard, Resolution, Unresolved, ASN, Network, OpenPort, URL, Takeover, Front
 
 
 def checkArgumentValidity(parser, args):
@@ -57,6 +57,7 @@ def loadOldFindings(db, domain):
 	old_resolved = set()
 	old_unresolved = set()
 	old_takeovers = set()
+	old_fronts = set()
 
 	print(colored("\n[*]-Loading Old Findings...", "yellow"))
 
@@ -69,8 +70,11 @@ def loadOldFindings(db, domain):
 	for row in db.query(Takeover).filter(Takeover.domain == domain):
 		old_takeovers.add(".".join([row.subdomain, domain]))
 
+	for row in db.query(Front).filter(Front.domain == domain):
+		old_fronts.add(".".join([row.subdomain, domain]))
+
 	print("  \__ {0}: {1}".format(colored("Subdomains loaded", "cyan"), colored(len(old_resolved) + len(old_unresolved), "yellow")))
-	return old_resolved, old_unresolved, old_takeovers
+	return old_resolved, old_unresolved, old_takeovers, old_fronts
 
 
 def purgeOldFindings(db, domain):
@@ -96,6 +100,9 @@ def purgeOldFindings(db, domain):
 	db.commit()
 
 	db.query(Takeover).filter(Takeover.domain == domain).delete()
+	db.commit()
+
+	db.query(Front).filter(Front.domain == domain).delete()
 	db.commit()
 
 	db.query(Record).filter(Record.domain == domain).delete()
@@ -334,6 +341,10 @@ def exportFindings(db, domain, old_resolved, interrupt):
 	with open("{0}/{1}".format(path, "takeovers.csv"), "w") as takeovers:
 		for row in db.query(Takeover).filter(Takeover.domain == domain).order_by(Takeover.subdomain):
 			takeovers.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
+
+	with open("{0}/{1}".format(path, "frontable.csv"), "w") as fronts:
+		for row in db.query(Front).filter(Front.domain == domain).order_by(Front.subdomain):
+			fronts.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
 
 	for exported_file in listdir(path):
 		if stat("{0}/{1}".format(path, exported_file)).st_size == 0:

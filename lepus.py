@@ -6,19 +6,20 @@ from termcolor import colored
 from time import sleep
 from gc import collect
 from glob import glob
-import importlib.util
 import sys
+import importlib.util
 import submodules.Permutations
 import submodules.PortScan
 import submodules.ReverseLookups
 import submodules.TakeOver
+import submodules.Front
 import submodules.Markov
 import utilities.DatabaseHelpers
 import utilities.MiscHelpers
 import utilities.ScanHelpers
 
 simplefilter("ignore")
-version = "3.4.1"
+version = "3.5.0"
 
 
 def printBanner():
@@ -39,17 +40,20 @@ if __name__ == "__main__":
 	parser.add_argument("-zt", "--zone-transfer", action="store_true", dest="zoneTransfer", help="attempt to zone transfer from identified name servers", default=False)
 	parser.add_argument("--permutate", action="store_true", dest="permutate", help="perform permutations on resolved domains", default=False)
 	parser.add_argument("-pw", "--permutation-wordlist", dest="permutation_wordlist", help="wordlist to perform permutations with [default is lists/words.txt]", type=FileType("r"), default="lists/words.txt")
+	parser.add_argument("--enrich", action="store_true", dest="enrich", help="perform enrichment permutations on resolved domains", default=False)
+	parser.add_argument("-el", "--enrich-length", action="store", dest="enrich-length", help="min length of strings used [default is 2]", type=int, default=2)
 	parser.add_argument("--reverse", action="store_true", dest="reverse", help="perform reverse dns lookups on resolved public IP addresses", default=False)
 	parser.add_argument("-ripe", "--ripe", action="store_true", dest="ripe", help="query ripe database with the 2nd level domain for networks to be used for reverse lookups", default=False)
 	parser.add_argument("-r", "--ranges", action="store", dest="ranges", help="comma seperated ip ranges to perform reverse dns lookups on", type=str, default=None)
-	parser.add_argument("-or", "--only-ranges", action="store_true", dest="only_ranges", help="use only ranges provided with -r or -ripe and not all previously identifed IPs", default=False)
-	parser.add_argument("--portscan", action="store_true", dest="portscan", help="scan resolved public IP addresses for open ports", default=False)
-	parser.add_argument("-p", "--ports", action="store", dest="ports", help="set of ports to be used by the portscan module [default is medium]", type=str)
-	parser.add_argument("--takeover", action="store_true", dest="takeover", help="check identified hosts for potential subdomain take-overs", default=False)
+	parser.add_argument("-or", "--only-ranges", action="store_true", dest="only_ranges", help="use only ranges provided with -r or -ripe and not all previously identified IPs", default=False)
 	parser.add_argument("--markovify", action="store_true", dest="markovify", help="use markov chains to identify more subdomains", default=False)
 	parser.add_argument("-ms", "--markov-state", action="store", dest="markov_state", help="markov state size [default is 3]", type=int, default=3)
 	parser.add_argument("-ml", "--markov-length", action="store", dest="markov_length", help="max length of markov substitutions [default is 5]", type=int, default=5)
 	parser.add_argument("-mq", "--markov-quantity", action="store", dest="markov_quantity", help="max quantity of markov results per candidate length [default is 5]", type=int, default=5)
+	parser.add_argument("--portscan", action="store_true", dest="portscan", help="scan resolved public IP addresses for open ports", default=False)
+	parser.add_argument("-p", "--ports", action="store", dest="ports", help="set of ports to be used by the portscan module [default is medium]", type=str)
+	parser.add_argument("--takeover", action="store_true", dest="takeover", help="check identified hosts for potential subdomain take-overs", default=False)
+	parser.add_argument("--front", action="store_true", dest="front", help="check identified hosts for potentially frontable domains", default=False)
 	parser.add_argument("-f", "--flush", action="store_true", dest="doFlush", help="purge all records of the specified domain from the database", default=False)
 	parser.add_argument("-v", "--version", action="version", version="Lepus v{0}".format(version))
 	args = parser.parse_args()
@@ -67,7 +71,7 @@ if __name__ == "__main__":
 
 	print("{0} {1}".format(colored("\n[*]-Running against:", "yellow"), colored(args.domain, "cyan")))
 
-	old_resolved, old_unresolved, old_takeovers = utilities.MiscHelpers.loadOldFindings(db, args.domain)
+	old_resolved, old_unresolved, old_takeovers, old_fronts = utilities.MiscHelpers.loadOldFindings(db, args.domain)
 	utilities.MiscHelpers.purgeOldFindings(db, args.domain)
 
 	try:
@@ -132,6 +136,9 @@ if __name__ == "__main__":
 
 			if args.takeover:
 				submodules.TakeOver.init(db, args.domain, old_takeovers, args.threads)
+
+			if args.front:
+				submodules.Front.init(db, args.domain, old_fronts, args.threads)
 
 		utilities.MiscHelpers.exportFindings(db, args.domain, old_resolved, False)
 

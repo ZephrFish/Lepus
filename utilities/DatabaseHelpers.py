@@ -82,6 +82,15 @@ class Takeover(Base):
 	timestamp = Column(Integer, nullable=False)
 
 
+class Front(Base):
+	__tablename__ = "fronts"
+	subdomain = Column(String(100), primary_key=True)
+	domain = Column(String(100), primary_key=True)
+	provider = Column(String(30), nullable=False)
+	signature = Column(String(100), nullable=False)
+	timestamp = Column(Integer, nullable=False)
+
+
 def init():
 	if os.path.exists("findings.sqlite"):
 		os.rename("findings.sqlite", "lepusdb.sqlite")

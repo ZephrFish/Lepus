@@ -1,3 +1,12 @@
+# Version 3.5.0
+
+### --- New Features
+1. New subdomain takeover for Zammad.com
+2. New --front option to identify frontable domains
+
+### --- Misc
+1. Updated wordlists
+
 # Version 3.4.1
 
 ### --- New Features

@@ -71,7 +71,8 @@ signatures = {
 	"Launchrock": ["you may have taken a wrong turn somewhere"],
 	"Kayako": ["That's not an active Kayako account"],
 	"Ning": ["Please double-check the address you've just entered", "is free to take"],
-	"Moosend": ["One account fits everything:"]
+	"Moosend": ["One account fits everything:"],
+	"Zammad": ["Requested system was not found."]
 
 }
 
@@ -654,6 +655,15 @@ def kayako(domain, ARecords, CNAME):
 	return outcome
 
 
+def zammad(domain, ARecords, CNAME):
+	outcome = []
+
+	if findSignatures(domain, signatures["Zammad"], 1):
+		outcome = ["Zammad", domain, CNAME]
+
+	return outcome
+
+
 def ning(domain, ARecords, CNAME):
 	outcome = []
 
@@ -823,6 +833,9 @@ def identify(domain, ARecords, CNAMERecords):
 
 		elif "vendecommerce.com" in CNAME:
 			outcome = vend(domain, ARecords, CNAME)
+
+		elif "zammad.com" in CNAME:
+			outcome = zammad(domain, ARecords, CNAME)
 
 		elif "netdna-cdn.com" in CNAME:
 			outcome = maxcdn(domain, ARecords, CNAME)

@@ -1,6 +1,6 @@
 [![GitHub License](https://img.shields.io/badge/License-BSD%203--Clause-informational.svg)](https://github.com/GKNSB/Lepus/blob/master/LICENSE)
 [![GitHub Python](https://img.shields.io/badge/Python-%3E=%203.6-informational.svg)](https://www.python.org/)
-[![GitHub Version](https://img.shields.io/badge/Version-3.4.1-green.svg)](https://github.com/GKNSB/Lepus)
+[![GitHub Version](https://img.shields.io/badge/Version-3.5.0-green.svg)](https://github.com/GKNSB/Lepus)
 
 # Lepus
 
@@ -149,7 +149,7 @@ or
 lepus.py --markovify -ms 5 -ml 10 -mq 10
 ```
 
-## Subdomain Takeover
+### Subdomain Takeover
 Lepus has a list of signatures in order to identify if a domain can be taken over. You can use it by providing the `--takeover` argument. This module also supports Slack notifications, once a potential takeover has been identified, by adding a Slack token in the `config.ini` file. The checks are made against the following services:
 
 * Acquia
@@ -206,10 +206,10 @@ Lepus has a list of signatures in order to identify if a domain can be taken ove
 * Webflow
 * Wishpond
 * Wordpress
+* Zammad
 * Zendesk
 
-
-## Port Scan
+### Port Scan
 The port scan module will check open ports against a target and log them in the results. You can use the `--portscan` argument which by default will scan ports 80, 443, 8000, 8080, 8443. You can also use custom ports or choose a predefined set of ports.
 
 |Ports set|Ports|
@@ -236,6 +236,19 @@ or
 ```
 lepus.py --portscan -p 80,443,8082,65123 yahoo.com
 ```
+
+### Frontable Domains
+The identification module for frontable domains uses a list of signatures in order to identify potential domains of interest that can be used for your domain fronting needs. This module is activated using the `--front` flag. This module also supports Slack notifications, once a potential takeover has been identified, by adding a Slack token in the `config.ini` file. The checks are made against the following services:
+
+* Cloudfront
+* Google
+* Azure
+* Akamai
+* Level3
+* Cloudflare
+* Unbounce
+* Incapsula
+* Fastly
 
 
 ## Installation
@@ -296,21 +309,18 @@ optional arguments:
   -pw PERMUTATION_WORDLIST, --permutation-wordlist PERMUTATION_WORDLIST
                         wordlist to perform permutations with [default is
                         lists/words.txt]
+  --enrich              perform enrichment permutations on resolved domains
+  -el ENRICH-LENGTH, --enrich-length ENRICH-LENGTH
+                        min length of strings used [default is 2]
   --reverse             perform reverse dns lookups on resolved public IP
                         addresses
-  -ripe, --ripe         query ripe database with the 2nd level domain 
-                        for networks to be used for reverse lookups
+  -ripe, --ripe         query ripe database with the 2nd level domain for
+                        networks to be used for reverse lookups
   -r RANGES, --ranges RANGES
                         comma seperated ip ranges to perform reverse dns
                         lookups on
   -or, --only-ranges    use only ranges provided with -r or -ripe and not all
-                        previously identifed IPs
-  --portscan            scan resolved public IP addresses for open ports
-  -p PORTS, --ports PORTS
-                        set of ports to be used by the portscan module
-                        [default is medium]
-  --takeover            check identified hosts for potential subdomain take-
-                        overs
+                        previously identified IPs
   --markovify           use markov chains to identify more subdomains
   -ms MARKOV_STATE, --markov-state MARKOV_STATE
                         markov state size [default is 3]
@@ -319,6 +329,14 @@ optional arguments:
   -mq MARKOV_QUANTITY, --markov-quantity MARKOV_QUANTITY
                         max quantity of markov results per candidate length
                         [default is 5]
+  --portscan            scan resolved public IP addresses for open ports
+  -p PORTS, --ports PORTS
+                        set of ports to be used by the portscan module
+                        [default is medium]
+  --takeover            check identified hosts for potential subdomain take-
+                        overs
+  --front               check identified hosts for potentially frontable
+                        domains
   -f, --flush           purge all records of the specified domain from the
                         database
   -v, --version         show program's version number and exit
@@ -327,7 +345,7 @@ optional arguments:
 ## Full command example
 The following, is an example run with all available active arguments:
 ```
-./lepus.py python.org --wordlist lists/subdomains.txt --permutate -pw ~/mypermsword.lst --reverse -ripe -r 10.11.12.0/24 --portscan -p huge --takeover --markovify -ms 3 -ml 10 -mq 10
+./lepus.py python.org --wordlist lists/subdomains.txt --permutate -pw ~/mypermsword.lst --reverse -ripe -r 10.11.12.0/24 --portscan -p huge --takeover --front --markovify -ms 3 -ml 10 -mq 10
 ```
 
 The following command flushes all database entries for a specific domain:
