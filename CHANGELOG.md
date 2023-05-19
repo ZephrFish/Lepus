@@ -3,6 +3,7 @@
 ### --- New Features
 1. New subdomain takeover for Zammad.com
 2. New --front option to identify frontable domains
+3. Enrich submodule: Permutating subdomains based on previously identified strings
 
 ### --- Misc
 1. Updated wordlists
