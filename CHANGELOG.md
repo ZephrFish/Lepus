@@ -5,6 +5,9 @@
 2. New --front option to identify frontable domains
 3. Enrich submodule: Permutating subdomains based on previously identified strings
 
+### --- Bug Fixes
+1. Fixed a bug in PassiveTotal in order to discard trash when there is a wildcard
+
 ### --- Misc
 1. Updated wordlists
 

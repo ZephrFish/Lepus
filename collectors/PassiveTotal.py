@@ -1,3 +1,4 @@
+import os
 import requests
 from termcolor import colored
 from configparser import RawConfigParser
@@ -31,8 +32,52 @@ def init(domain):
 				return []
 
 			try:
+				subdomainList = []
+				
 				for subdomain in response.json()["subdomains"]:
-					PT.append("%s.%s" % (subdomain, domain))
+					subdomainList.append(subdomain)
+				
+				asteriskDomains = []
+				
+				for subdom in subdomainList:
+					if "*" in subdom:
+						asteriskDomains.append(subdom.strip("*")[::-1])
+				
+				asteriskDomains.sort()
+				comp = []
+				oldPrefix = ""
+				prefixList = []
+
+				for item in asteriskDomains:
+					comp.append(item)
+					prefix = os.path.commonprefix(comp)
+
+					if prefix != "":
+						oldPrefix = prefix
+
+					else:
+						prefixList.append(oldPrefix[::-1])
+						comp = []
+						comp.append(item)
+
+				prefix = os.path.commonprefix(comp)
+				prefixList.append(prefix[::-1])
+
+				finalPrefixes = []
+				for item in prefixList:
+					if item != "":
+						finalPrefixes.append(item)
+					
+					
+				for subdomain in subdomainList:
+					match = False
+
+					for prefix in finalPrefixes:
+						if subdomain.endswith(prefix):
+							match = True
+
+					if not match and not "*" in subdomain:
+						PT.append("%s.%s" % (subdomain, domain))
 
 				PT = set(PT)
 
