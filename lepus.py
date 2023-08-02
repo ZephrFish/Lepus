@@ -91,6 +91,7 @@ if __name__ == "__main__":
 			print()
 			collector_subdomains = []
 			modules = glob("collectors/*.py")
+			modules.sort()
 
 			for module in modules:
 				if not module.endswith("__init__.py") and module[-3:] == ".py":

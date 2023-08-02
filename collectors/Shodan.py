@@ -25,9 +25,10 @@ def init(domain):
 			response = requests.get("https://api.shodan.io/dns/domain/{0}?key={1}&history=True".format(domain, SHODAN_API_KEY))
 			jsonResponse = loads(response.text)
 
-			for subdomain in jsonResponse["subdomains"]:
-				normalized="{0}.python.org".format(str(subdomain))
-				SD.append(normalized)
+			if "No information available" not in response.text:
+				for subdomain in jsonResponse["subdomains"]:
+					normalized="{0}.{1}".format(str(subdomain), domain)
+					SD.append(normalized)
 
 			for res in api.search_cursor("hostname:.{0}".format(domain)):
 				SD.extend([hostname for hostname in res["hostnames"] if ".{0}".format(domain) in hostname])

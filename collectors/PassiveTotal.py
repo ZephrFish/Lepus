@@ -76,6 +76,10 @@ def init(domain):
 						if subdomain.endswith(prefix):
 							match = True
 
+					if subdomain == "*":
+						PT = []
+						break
+
 					if not match and not "*" in subdomain:
 						PT.append("%s.%s" % (subdomain, domain))
 
