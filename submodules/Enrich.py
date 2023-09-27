@@ -94,7 +94,7 @@ def createWords(length, subdomains):
 	return words
 
 
-def init(db, domain, enrichLength, hideWildcards, threads):
+def init(db, domain, enrichLength, hideWildcards, hideFindings, threads):
 	base = set()
 
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
@@ -131,11 +131,13 @@ def init(db, domain, enrichLength, hideWildcards, threads):
 
 		for generator in generators:
 			for subdomain in generator:
-				permutations.add((subdomain, "Enrich"))
+				permutations.add(subdomain)
 
-		permutations = list(permutations)
+		permutations.difference_update(base)
+		permutations = [(subdomain, "Enrich") for subdomain in permutations]
+
 		print("{0} {1} {2} {3}".format(colored("\n[*]-Generated", "yellow"), colored(len(permutations), "cyan"), colored("enriched subdomain candidates for chunk", "yellow"), colored(str(iteration) + "/" + str(numberOfChunks), "cyan")))
 		iteration += 1
 
-		identifyWildcards(db, permutations, domain, threads)
-		massResolve(db, permutations, domain, hideWildcards, threads)
+		identifyWildcards(db, permutations, domain, hideFindings, threads)
+		massResolve(db, permutations, domain, hideWildcards, hideFindings, threads)

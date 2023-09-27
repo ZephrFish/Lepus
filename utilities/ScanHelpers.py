@@ -93,15 +93,17 @@ def checkWildcard(timestamp, subdomain, domain):
 		return (subdomain, None)
 
 
-def identifyWildcards(db, findings, domain, threads):
-	if len(findings) <= 10000:
+def identifyWildcards(db, findings, domain, hideFindings, threads):
+	chunkSize = 100000
+
+	if len(findings) <= chunkSize:
 		print(colored("\n[*]-Generating samples for wildcard identification...", "yellow"))
 	
 	else:
-		print(colored("\n[*]-Generating samples for wildcard identification in chunks of 10,000...", "yellow"))
+		print(colored(f"\n[*]-Generating samples for wildcard identification in chunks of {str(format (chunkSize, ',d'))}...", "yellow"))
 
-	numberOfFindingsChunks = len(findings) // 10000 + 1
-	findingsChunks = utilities.MiscHelpers.chunkify(findings, 10000)
+	numberOfFindingsChunks = len(findings) // chunkSize + 1
+	findingsChunks = utilities.MiscHelpers.chunkify(findings, chunkSize)
 	findingsChunkIterator = 1
 
 	timestamp = int(time())
@@ -225,8 +227,9 @@ def identifyWildcards(db, findings, domain, threads):
 
 		print("    \__ {0}: {1}".format(colored("New wildcards that were identified", "yellow"), colored(len(new_wildcards.items()), "cyan")))
 
-		for hostname, addresses in new_wildcards.items():
-			print("      \__ {0}.{1} ==> {2}".format(colored("*", "red"), colored(hostname, "cyan"), ", ".join([colored(address, "red") for address in addresses])))
+		if not hideFindings:
+			for hostname, addresses in new_wildcards.items():
+				print("      \__ {0}.{1} ==> {2}".format(colored("*", "red"), colored(hostname, "cyan"), ", ".join([colored(address, "red") for address in addresses])))
 
 
 def resolve(finding, domain):
@@ -241,7 +244,7 @@ def resolve(finding, domain):
 		return (finding[0], None, finding[1])
 
 
-def massResolve(db, findings, domain, hideWildcards, threads):
+def massResolve(db, findings, domain, hideWildcards, hideFindings, threads):
 	resolved = set()
 	unresolved = set()
 	wildcards = {}
@@ -380,8 +383,9 @@ def massResolve(db, findings, domain, hideWildcards, threads):
 
 	print("    \__ {0}: {1}".format(colored("New hostnames that were resolved", "yellow"), colored(len(new_resolutions.items()), "cyan")))
 
-	for hostname, addresses in new_resolutions.items():
-		print("      \__ {0}: {1}".format(colored(hostname, "cyan"), ", ".join([address for address in addresses])))
+	if not hideFindings:
+		for hostname, addresses in new_resolutions.items():
+			print("      \__ {0}: {1}".format(colored(hostname, "cyan"), ", ".join([address for address in addresses])))
 
 
 def reverseLookup(IP):
@@ -392,7 +396,7 @@ def reverseLookup(IP):
 		return (None, IP)
 
 
-def massReverseLookup(db, domain, IPs, threads):
+def massReverseLookup(db, domain, IPs, hideFindings, threads):
 	results = set()
 	hostnames = set()
 	result_dict = {}
@@ -504,8 +508,9 @@ def massReverseLookup(db, domain, IPs, threads):
 
 	print("    \__ {0}: {1}".format(colored("Additional hostnames that were resolved", "yellow"), colored(len(reverse_resolutions.items()), "cyan")))
 
-	for hostname, addresses in reverse_resolutions.items():
-		print("      \__ {0}: {1}".format(colored(hostname, "cyan"), ", ".join([address for address in addresses])))
+	if not hideFindings:
+		for hostname, addresses in reverse_resolutions.items():
+			print("      \__ {0}: {1}".format(colored(hostname, "cyan"), ", ".join([address for address in addresses])))
 
 
 def connectScan(target):
@@ -622,7 +627,7 @@ def rdap(ip):
 		return {}
 
 
-def massRDAP(db, domain, threads):
+def massRDAP(db, domain, hideFindings, threads):
 	IPs = set()
 	rdap_records = []
 	numberOfChunks = 1
@@ -709,17 +714,19 @@ def massRDAP(db, domain, threads):
 	del rdap_records
 	collect()
 
-	print("    \__ {0}:".format(colored("New autonomous Systems that were identified", "yellow")))
+	if not hideFindings:
 
-	for row in db.query(ASN).filter(ASN.domain == domain).order_by(ASN.id, ASN.prefix):
-		if row == db.query(ASN).filter(ASN.domain == domain).order_by(ASN.id.desc(), ASN.prefix.desc()).first():
-			print("    __\__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("ASN", "cyan"), colored(row.id, "yellow"), colored("Prefix", "cyan"), colored(row.prefix, "yellow"), colored("Description", "cyan"), colored(row.description, "yellow")))
-			print("   \\")
+		print("    \__ {0}:".format(colored("New autonomous Systems that were identified", "yellow")))
 
-		else:
-			print("      \__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("ASN", "cyan"), colored(row.id, "yellow"), colored("Prefix", "cyan"), colored(row.prefix, "yellow"), colored("Description", "cyan"), colored(row.description, "yellow")))
+		for row in db.query(ASN).filter(ASN.domain == domain).order_by(ASN.id, ASN.prefix):
+			if row == db.query(ASN).filter(ASN.domain == domain).order_by(ASN.id.desc(), ASN.prefix.desc()).first():
+				print("    __\__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("ASN", "cyan"), colored(row.id, "yellow"), colored("Prefix", "cyan"), colored(row.prefix, "yellow"), colored("Description", "cyan"), colored(row.description, "yellow")))
+				print("   \\")
 
-	print("    \__ {0}:".format(colored("New networks that were identified", "yellow")))
+			else:
+				print("      \__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("ASN", "cyan"), colored(row.id, "yellow"), colored("Prefix", "cyan"), colored(row.prefix, "yellow"), colored("Description", "cyan"), colored(row.description, "yellow")))
 
-	for row in db.query(Network).filter(Network.domain == domain).order_by(Network.cidr):
-		print("      \__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("CIDR", "cyan"), colored(row.cidr, "yellow"), colored("Identifier", "cyan"), colored(row.identifier, "yellow"), colored("Country", "cyan"), colored(row.country, "yellow")))
+		print("    \__ {0}:".format(colored("New networks that were identified", "yellow")))
+
+		for row in db.query(Network).filter(Network.domain == domain).order_by(Network.cidr):
+			print("      \__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("CIDR", "cyan"), colored(row.cidr, "yellow"), colored("Identifier", "cyan"), colored(row.identifier, "yellow"), colored("Country", "cyan"), colored(row.country, "yellow")))

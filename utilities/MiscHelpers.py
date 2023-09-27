@@ -114,7 +114,7 @@ def purgeOldFindings(db, domain):
 def loadWordlist(domain, wordlist):
 	print(colored("\n[*]-Loading Wordlist...", "yellow"))
 
-	WL = set([subdomain.strip().lower()for subdomain in wordlist.readlines()])
+	WL = set([subdomain.strip().lower() for subdomain in wordlist.readlines()])
 	wordlist.close()
 
 	print("  \__ {0}: {1}".format(colored("Subdomains loaded", "cyan"), colored(len(WL), "yellow")))

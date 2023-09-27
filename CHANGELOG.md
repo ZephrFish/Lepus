@@ -4,12 +4,29 @@
 1. New subdomain takeover for Zammad.com
 2. New --front option to identify frontable domains
 3. Enrich submodule: Permutating subdomains based on previously identified strings
+4. Regulator submodule: Identify new subdomains with regular language ranking
+5. GPT submodule: Use ChatGPT to identify more potential subdomains
+6. Expand submodule: expand already identified domains from a level downwards
+7. Added optional API key support for CertSpotter since they are now SSLMate
+8. New Digitorus collector
+9. New Qianxin Hunter collector
+10. New Redhunt Labs collector
+11. New Columbus Elmasy collector
+12. Added a "hide findings" flag to suppress findings from being printed to the console
 
 ### --- Bug Fixes
-1. Fixed a bug in PassiveTotal in order to discard trash when there is a wildcard
+1. Fixed a bug in PassiveTotal collector in order to discard trash when there is a wildcard
+2. Fixed a bug in Shodan collector to handle "no results"
+3. Fixed Censys collector to handle API v2
+4. Fixed WebScout collector to handle their new API
+5. Fixed ZoomEye collector to handle their new API
+6. Applied a filter to remove already known subdomains from Permutations and Enrich
 
 ### --- Misc
 1. Updated wordlists
+2. Marked certain collectors for potential deprecation
+3. Small change in how Markov chunks are generated
+4. Bumped wildcard genetion chunk size to 100k from 10k
 
 # Version 3.4.1
 

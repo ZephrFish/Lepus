@@ -52,6 +52,8 @@ def init(domain):
 					url = "https://urlscan.io/api/v1/search/?q=domain:*.{0}&size={1}&search_after={2}".format(domain, size, lastItemString)
 					sleep(2)
 
+			US = set(US)
+
 			print("  \__ {0}: {1}".format(colored("Subdomains found", "cyan"), colored(len(US), "yellow")))
 			return US
 

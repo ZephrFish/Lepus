@@ -78,3 +78,5 @@ def init(domain):
 		except Exception:
 			print("  \__", colored("Something went wrong!", "red"))
 			return []
+
+#Depricated?

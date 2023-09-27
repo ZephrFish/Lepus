@@ -972,7 +972,7 @@ def massTakeOver(targets, threads):
 	return takeovers
 
 
-def init(db, domain, old_takeovers, threads):
+def init(db, domain, old_takeovers, hideFindings, threads):
 	targets = set()
 	notify = False
 	takeovers = []
@@ -1029,10 +1029,12 @@ def init(db, domain, old_takeovers, threads):
 
 	print("    \__ {0} {1}".format(colored("New takeover vulnerabilities that were identified:", "yellow"), colored(len(takeovers), "cyan")))
 
-	for takeover in takeovers:
-		print("      \__ {0}: {1}, {2}".format(colored(takeover[0], "cyan"), colored(takeover[1], "yellow"), colored(takeover[2], "yellow")))
+	if not hideFindings:
+		for takeover in takeovers:
+			print("      \__ {0}: {1}, {2}".format(colored(takeover[0], "cyan"), colored(takeover[1], "yellow"), colored(takeover[2], "yellow")))
 
-		if notify:
+	if notify:
+		for takeover in takeovers:
 			if takeover[0] not in old_takeovers:
 				notifications.append([takeover[0], takeover[1], takeover[2]])
 	

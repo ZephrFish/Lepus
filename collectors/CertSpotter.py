@@ -1,6 +1,8 @@
 import requests
 from re import findall
+from time import sleep
 from termcolor import colored
+from configparser import RawConfigParser
 
 
 def parseResponse(response, domain):
@@ -13,13 +15,22 @@ def parseResponse(response, domain):
 def init(domain):
 	CS = []
 
+	parser = RawConfigParser()
+	parser.read("config.ini")
+	CERTSPOTTER_API_KEY = parser.get("CertSpotter", "CERTSPOTTER_API_KEY")
+
 	print(colored("[*]-Searching CertSpotter...", "yellow"))
 
 	base_url = "https://api.certspotter.com"
 	next_link = "/v1/issuances?domain={0}&include_subdomains=true&expand=dns_names".format(domain)
 	headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"}
 
+	if CERTSPOTTER_API_KEY:
+		headers["Authorization"] = "Bearer {0}".format(CERTSPOTTER_API_KEY)
+
 	while next_link:
+		sleep(5)
+
 		try:
 			response = requests.get(base_url + next_link, headers=headers)
 

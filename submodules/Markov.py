@@ -102,7 +102,7 @@ def markovify(markov, subdomain, markovLength, markovQuantity):
 	return output
 
 
-def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, threads):
+def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, hideFindings, threads):
 	base = set()
 
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
@@ -133,14 +133,15 @@ def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, t
 	baseList = list(set(baseList))
 	leaveFlag = True
 
-	if len(baseList) <= 1000:
+	chunkSize = 1000
+	if len(baseList) <= chunkSize:
 		print("{0} {1} {2}".format(colored("\n[*]-Performing markov based permutations on", "yellow"), colored("{0}".format(len(baseList)), "cyan"), colored("hostname-parts...", "yellow")))
 
 	else:
-		print("{0} {1} {2}".format(colored("\n[*]-Performing markov based permutations on", "yellow"), colored("{0}".format(len(baseList)), "cyan"), colored("hostname-parts in chunks of 1,000...", "yellow")))
+		print("{0} {1} {2}".format(colored("\n[*]-Performing markov based permutations on", "yellow"), colored("{0}".format(len(baseList)), "cyan"), colored(f"hostname-parts in chunks of {str(format (chunkSize, ',d'))}...", "yellow")))
 	
-	numberOfChunks = len(baseList) // 1000 + 1
-	baseChunks = utilities.MiscHelpers.chunkify(baseList, 1000)
+	numberOfChunks = len(baseList) // chunkSize + 1
+	baseChunks = utilities.MiscHelpers.chunkify(baseList, chunkSize)
 	iteration = 1
 
 	for baseChunk in baseChunks:
@@ -182,10 +183,11 @@ def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, t
 
 		markovified.difference_update(base)
 		finalMarkovified = []
+
 		for item in markovified:
 			finalMarkovified.append((item, "Markov"))
 
 		print("{0} {1} {2} {3}".format(colored("\n[*]-Generated", "yellow"), colored(len(finalMarkovified), "cyan"), colored("markov candidates for chunk", "yellow"), colored(str(iteration - 1) + "/" + str(numberOfChunks), "cyan")))
 
-		identifyWildcards(db, finalMarkovified, domain, threads)
-		massResolve(db, finalMarkovified, domain, hideWildcards, threads)
+		identifyWildcards(db, finalMarkovified, domain, hideFindings, threads)
+		massResolve(db, finalMarkovified, domain, hideWildcards, hideFindings, threads)

@@ -12,32 +12,43 @@ def init(domain):
 	print(colored("[*]-Searching Webscout...", "yellow"))
 
 	headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0", "content-type": "application/json"}
-	url = "https://webscout.io/api/search/{0}".format(domain)
+	url = "https://api.webscout.io/lookup/{0}".format(domain)
+
+	waitCounter = 0
 
 	try:
 		creationResponse = requests.get(url, headers=headers)
 		status = loads(creationResponse.text)["status"]
+		positionInQueue = loads(creationResponse.text)["queue_pos"]["pivot"]
 
-		if status == "created" or status == "running" or status == "success":
-			creationID = loads(creationResponse.text)["id"]
+		if status == "success": 
+			found = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), creationResponse.text)
+			WS.extend(found)
+		elif status == "running": 
+			found = []
 
-			while status != "success":
-				sleep(2)
-				url = "https://webscout.io/api/search/status/{0}".format(creationID)
+		previousRunFound = -1
+
+		if status == "running" or status == "success":
+			while (positionInQueue != -1 or len(found) > previousRunFound) and waitCounter < 20:
+				sleep(30)
+
+				previousRunFound = len(found)
 				runningResponse = requests.get(url, headers=headers)
 				status = loads(runningResponse.text)["status"]
+				positionInQueue = loads(runningResponse.text)["queue_pos"]["pivot"]
 
-			url = "https://webscout.io/api/search/result/{0}".format(creationID)
-			completedResponse = requests.get(url, headers=headers)
-			results = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), completedResponse.text)
-			
-			WS.extend(results)
-			WS = set(WS)
+				if status == "success": 
+					found = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), runningResponse.text)
+					WS.extend(found)
+
+				waitCounter += 1
 
 		else:
 			print("  \__", colored("Message: {0}".format(loads(creationResponse.text)["message"]), "red"))
 			return WS
-		
+
+		WS = set(WS)
 
 		print("  \__ {0}: {1}".format(colored("Subdomains found", "cyan"), colored(len(WS), "yellow")))
 		return WS

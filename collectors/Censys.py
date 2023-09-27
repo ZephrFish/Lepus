@@ -1,5 +1,6 @@
 import requests
 from re import findall
+from time import sleep
 from json import loads
 from termcolor import colored
 from configparser import RawConfigParser
@@ -12,7 +13,12 @@ def init(domain):
 
 	parser = RawConfigParser()
 	parser.read("config.ini")
-	API_URL = "https://search.censys.io/api/v1"
+	API_URL = "https://search.censys.io/api/v2"
+	maxPerPage = 100
+	maxCensysPages = 20
+	cursor = ""
+	page = 1
+
 	UID = parser.get("Censys", "CENSYS_UID")
 	SECRET = parser.get("Censys", "CENSYS_SECRET")
 
@@ -21,21 +27,25 @@ def init(domain):
 		return []
 
 	else:
-		payload = {"query": domain}
+		if not cursor:
+			payload = {"q": domain, "per_page": maxPerPage}
+		else: 
+			payload = {"q": domain, "per_page": maxPerPage, "cursor": cursor}
 
 		try:
-			res = requests.post(API_URL + "/search/certificates", json=payload, auth=(UID, SECRET))
+			res = requests.post(API_URL + "/certificates/search", json=payload, auth=(UID, SECRET))
 
-			if res.status_code == 429:
-				print("  \__", colored("Rate limit exceeded. See https://www.censys.io/account for rate limit details.", "red"))
+			if res.status_code == 403:
+				print("  \__", colored("You have used your full quota for this billing period.", "red"))
 				return C
 
 			C = findall("CN=([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), str(res.content))
-			numberOfPages = findall("pages\":\s(\d+)?}", str(res.content))
+			nextCursor = findall("\{\"next\": \"(.*?)\"", str(res.content))
 
-			for page in range(2, int(numberOfPages[0]) + 1):
-				payload = {"query": domain, "page": page}
-				res = requests.post(API_URL + "/search/certificates", json=payload, auth=(UID, SECRET))
+			while page <= maxCensysPages:
+				sleep(3)
+				payload = {"q": domain, "per_page": maxPerPage, "cursor": nextCursor[0]}
+				res = requests.post(API_URL + "/certificates/search", json=payload, auth=(UID, SECRET))
 
 				if res.status_code != 200:
 					if loads(res.text)["error_type"] == "max_results":
@@ -49,13 +59,20 @@ def init(domain):
 					elif loads(res.text)["error_type"] == "rate_limit_exceeded":
 						print("  \__", colored("Rate-limit exceeded.", "red"))
 						break
+					
+					elif res.status_code == 403 and "You have used your full quota for this billing period." in res.text:
+						print("  \__", colored("You have used your full quota for this billing period.", "red"))
+						break
 
 					else:
 						print("  \__ {0} {1} {2}".format(colored("An error occured on page", "red"), colored("{0}:".format(page), "red"), colored(loads(res.text)["error_type"], "red")))
 
 				else:
 					tempC = findall("CN=([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), str(res.content))
+					nextCursor = findall("\{\"next\": \"(.*?)\"", str(res.content))
 					C = C + tempC
+
+				page += 1
 
 			C = set(C)
 

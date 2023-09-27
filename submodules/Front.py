@@ -143,7 +143,7 @@ def massFront(targets, threads):
 	return fronts
 
 
-def init(db, domain, old_fronts, threads):
+def init(db, domain, old_fronts, hideFindings, threads):
 	targets = set()
 	notify = False
 	fronts = []
@@ -200,10 +200,12 @@ def init(db, domain, old_fronts, threads):
 
 	print("    \__ {0} {1}".format(colored("New frontable domains that were identified:", "yellow"), colored(len(fronts), "cyan")))
 
-	for front in fronts:
-		print("      \__ {0}: {1}, {2}".format(colored(front[0], "cyan"), colored(front[1], "yellow"), colored(front[2], "yellow")))
+	if not hideFindings:
+		for front in fronts:
+			print("      \__ {0}: {1}, {2}".format(colored(front[0], "cyan"), colored(front[1], "yellow"), colored(front[2], "yellow")))
 
-		if notify:
+	if notify:
+		for front in fronts:
 			if front[0] not in old_fronts:
 				notifications.append([front[0], front[1], front[2]])
 	

@@ -79,7 +79,7 @@ def permuteIterations(subdomain):
 				yield subdomain.replace(instance, str(newinstance))
 
 
-def init(db, domain, wordlist, hideWildcards, threads):
+def init(db, domain, wordlist, hideWildcards, hideFindings, threads):
 	base = set()
 
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
@@ -117,11 +117,13 @@ def init(db, domain, wordlist, hideWildcards, threads):
 
 		for generator in generators:
 			for subdomain in generator:
-				permutations.add((subdomain, "Permutations"))
+				permutations.add(subdomain)
 
-		permutations = list(permutations)
+		permutations.difference_update(base)
+		permutations = [(subdomain, "Permutations") for subdomain in permutations]
+
 		print("{0} {1} {2} {3}".format(colored("\n[*]-Generated", "yellow"), colored(len(permutations), "cyan"), colored("permutated subdomains for chunk", "yellow"), colored(str(iteration) + "/" + str(numberOfChunks), "cyan")))
 		iteration += 1
 
-		identifyWildcards(db, permutations, domain, threads)
-		massResolve(db, permutations, domain, hideWildcards, threads)
+		identifyWildcards(db, permutations, domain, hideFindings, threads)
+		massResolve(db, permutations, domain, hideWildcards, hideFindings, threads)

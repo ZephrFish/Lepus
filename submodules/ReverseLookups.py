@@ -4,7 +4,7 @@ from ipaddress import ip_address, ip_network
 from utilities.DatabaseHelpers import Resolution
 from utilities.ScanHelpers import massReverseLookup
 
-def init(db, domain, ripe, ranges, only_ranges, threads):
+def init(db, domain, ripe, ranges, only_ranges, hideFindings, threads):
 	IPs = set()
 
 	if ranges:
@@ -29,4 +29,4 @@ def init(db, domain, ripe, ranges, only_ranges, threads):
 				IPs.add(row.address)
 
 	IPs = list(IPs)
-	massReverseLookup(db, domain, IPs, threads)
+	massReverseLookup(db, domain, IPs, hideFindings, threads)

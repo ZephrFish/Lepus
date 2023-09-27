@@ -1,9 +1,15 @@
 beautifulsoup4==4.9.3
+dank==0.0.23
+datrie==0.8.2
 dnspython==2.0.0
+editdistance==0.6.2
 ipwhois==1.2.0
-requests==2.25.1
+openai==0.28.0
+requests==2.31.0
 shodan==1.25.0
 slackclient==2.9.3
 SQLAlchemy==1.4.18
 termcolor==1.1.0
+tldextract==3.4.4
 tqdm==4.61.1
+urllib3==1.26.16

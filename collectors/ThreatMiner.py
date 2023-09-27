@@ -1,6 +1,7 @@
 import requests
 from json import loads
 from termcolor import colored
+from http.client import responses
 
 
 def init(domain):
@@ -27,7 +28,7 @@ def init(domain):
 			return TM
 
 		else:
-			print("  \__", colored("Something went wrong!", "red"))
+			print("  \__", colored("Response: {0} {1}".format(response.status_code, responses[response.status_code]), "red"))
 			return []
 
 	except requests.exceptions.RequestException as err:
@@ -49,3 +50,5 @@ def init(domain):
 	except Exception:
 		print("  \__", colored("Something went wrong!", "red"))
 		return []
+
+#Depricated?
