@@ -9,11 +9,11 @@
 6. Expand submodule: expand already identified domains from a level downwards
 7. Added optional API key support for CertSpotter since they are now SSLMate
 8. Added optional API key support for HackerTarget
-8. New Digitorus collector
-9. New Qianxin Hunter collector
-10. New Redhunt Labs collector
-11. New Columbus Elmasy collector
-12. Added a "hide findings" flag to suppress findings from being printed to the console
+9. New Digitorus collector
+10. New Qianxin Hunter collector
+11. New Redhunt Labs collector
+12. New Columbus Elmasy collector
+13. Added a "hide findings" flag to suppress findings from being printed to the console
 
 ### --- Bug Fixes
 1. Fixed a bug in PassiveTotal collector in order to discard trash when there is a wildcard
