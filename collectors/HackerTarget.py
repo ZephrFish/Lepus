@@ -1,6 +1,7 @@
 import requests
 from urllib.parse import quote
 from termcolor import colored
+from configparser import RawConfigParser
 
 
 def init(domain):
@@ -8,7 +9,15 @@ def init(domain):
 
 	print(colored("[*]-Searching HackerTarget...", "yellow"))
 
-	url = "https://api.hackertarget.com/hostsearch/?q={0}".format(quote(domain))
+	parser = RawConfigParser()
+	parser.read("config.ini")
+	HACKERTARGET_KEY = parser.get("HackerTarget", "HACKERTARGET_KEY")
+
+	if HACKERTARGET_KEY == "":
+		url = "https://api.hackertarget.com/hostsearch/?q={0}".format(quote(domain))
+	else:
+		url = "https://api.hackertarget.com/hostsearch/?apikey={0}&q={1}".format(HACKERTARGET_KEY,quote(domain))
+
 	headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"}
 
 	try:

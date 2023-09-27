@@ -52,7 +52,7 @@ The Collectors mode collects subdomains from the following services:
 |[BufferOver](https://tls.bufferover.run/)|Yes|
 |[C99](https://api.c99.nl/)|Yes|
 |[Censys](https://censys.io/)|Yes|
-|[CertSpotter](https://sslmate.com/certspotter/)|No|
+|[CertSpotter](https://sslmate.com/certspotter/)|Optional|
 |[Columbus Elmasy](https://columbus.elmasy.com/)|No|
 |[CommonCrawl](https://index.commoncrawl.org/)|No|
 |[CRT](https://crt.sh/)|No|
@@ -63,7 +63,7 @@ The Collectors mode collects subdomains from the following services:
 |[Farsight DNSDB](https://www.farsightsecurity.com/solutions/dnsdb/)|Yes|
 |[FOFA](https://fofa.so/)|Yes|
 |[Fullhunt](https://fullhunt.io/)|Yes|
-|[HackerTarget](https://hackertarget.com/)|No|
+|[HackerTarget](https://hackertarget.com/)|Optional|
 |[HunterIO](https://hunter.io/)|Yes|
 |[IntelX](https://intelx.io/)|Yes|
 |[LeakIX](https://leakix.net/)|Yes|
