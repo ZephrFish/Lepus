@@ -8,6 +8,7 @@
 5. GPT submodule: Use ChatGPT to identify more potential subdomains
 6. Expand submodule: expand already identified domains from a level downwards
 7. Added optional API key support for CertSpotter since they are now SSLMate
+8. Added optional API key support for HackerTarget
 8. New Digitorus collector
 9. New Qianxin Hunter collector
 10. New Redhunt Labs collector
