@@ -20,7 +20,6 @@ lepus.py yahoo.com
 * [Port Scan](#Port-Scan)
 * [Installation](#Installation)
 * [Arguments](#Arguments)
-* [Full command example](#Full-command-example)
 
 
 ## Enumeration modes
