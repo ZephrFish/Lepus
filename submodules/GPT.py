@@ -7,6 +7,7 @@ from re import findall
 from gc import collect
 from time import sleep
 from termcolor import colored
+from configparser import RawConfigParser
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from utilities.DatabaseHelpers import Resolution, Unresolved
@@ -15,34 +16,17 @@ import utilities.MiscHelpers
 
 
 def getKey():
-	keyUrl = "https://raw.githubusercontent.com/aandrew-me/tgpt/main/imp.txt"
-	headers = {"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"}
+	parser = RawConfigParser()
+	parser.read("config.ini")
+	CHATGPT_API_KEY = parser.get("ChatGPT", "CHATGPT_API_KEY")
 
-	try:
-		result = requests.get(keyUrl, headers=headers)
-
-		headerKey = base64.b64decode(result.text).decode("utf-8")
-		key = headerKey.split(" ")[1]
-
-		return key
-
-	except requests.exceptions.RequestException as err:
+	if CHATGPT_API_KEY == "":
 		return None
-
-	except requests.exceptions.HTTPError as errh:
-		return None
-
-	except requests.exceptions.ConnectionError as errc:
-		return None
-
-	except requests.exceptions.Timeout as errt:
-		return None
-
-	except Exception:
-		return None
+	else:
+		return CHATGPT_API_KEY
 
 
-def generate(key, domain, gptGive, gptReceive, gptLoop, chunk):
+def generateWithKey(key, domain, gptGive, gptReceive, gptLoop, chunk):
 	sleep(2)
 	subdomains = []
 
@@ -83,6 +67,10 @@ def init(db, domain, gptGive, gptReceive, gptConcurrent, gptLoop, hideWildcards,
 	base = set()
 	key = getKey()
 
+	if not key:
+		print("{0}".format(colored("\n[*]-Using ChatGPT requires an API key which has not been provided...", "yellow")))
+		return
+
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
 		if row.subdomain:
 			base.add(row.subdomain)
@@ -102,7 +90,7 @@ def init(db, domain, gptGive, gptReceive, gptConcurrent, gptLoop, hideWildcards,
 	subdomains = []
 
 	with ThreadPoolExecutor(max_workers=gptConcurrent) as executor:
-		tasks = {executor.submit(generate, key, domain, gptGive, gptReceive, gptLoop, chunk): chunk for chunk in baseChunks}
+		tasks = {executor.submit(generateWithKey, key, domain, gptGive, gptReceive, gptLoop, chunk): chunk for chunk in baseChunks}
 
 		print("{0} {1} {2}".format(colored("\n[*]-Using ChatGPT to generate candidates based on", "yellow"), colored("{0}".format(len(base)), "cyan"), colored(f"hostnames found...", "yellow")))
 
