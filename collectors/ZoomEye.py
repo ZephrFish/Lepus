@@ -27,7 +27,7 @@ def init(domain):
 			url = "https://api.zoomeye.org/domain/search?q={0}&type=1&s=1000&page={1}".format(domain, page)
 			response = requests.get(url, headers=headers)
 
-			if response.status_code == 200 and loads(response.text)["total"] > 0 and len(loads(response.text)["list"]) > 0:
+			if response.status_code == 200 and loads(response.text)["msg"] == "ok" and len(loads(response.text)["list"]) > 0:
 				subdomains = findall("[-\.\w\d]+\.{0}".format(domain.replace(".", "\.")), response.text)
 
 				if subdomains:
@@ -60,6 +60,6 @@ def init(domain):
 		print("  \__", colored(errt, "red"))
 		return []
 
-#	except Exception:
-#		print("  \__", colored("Something went wrong!", "red"))
-#		return []
+	except Exception:
+		print("  \__", colored("Something went wrong!", "red"))
+		return []

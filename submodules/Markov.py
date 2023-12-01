@@ -102,16 +102,17 @@ def markovify(markov, subdomain, markovLength, markovQuantity):
 	return output
 
 
-def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, hideFindings, threads):
+def init(db, domain, markovState, markovLength, markovQuantity, hideWildcards, hideFindings, excludeUnresolved, threads):
 	base = set()
 
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
 		if row.subdomain:
 			base.add(row.subdomain)
 
-	for row in db.query(Unresolved).filter(Unresolved.domain == domain):
-		if row.subdomain:
-			base.add(row.subdomain)
+	if not excludeUnresolved:
+		for row in db.query(Unresolved).filter(Unresolved.domain == domain):
+			if row.subdomain:
+				base.add(row.subdomain)
 
 	markov = MarkovChain(markovState)
 

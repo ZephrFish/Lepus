@@ -8,7 +8,7 @@ import utilities.MiscHelpers
 
 def extract_subdomains(subdomain_parts, level):
 	extracted_subdomains = set()
-    
+
 	for part in subdomain_parts:
 		subdomain_parts_list = part.split('.')
 
@@ -22,7 +22,7 @@ def extract_subdomains(subdomain_parts, level):
 	return extracted_subdomains
 
 
-def init(db, domain, level, wordlist, hideWildcards, hideFindings, threads):
+def init(db, domain, level, wordlist, hideWildcards, hideFindings, excludeUnresolved, threads):
 	base = set()
 	extracted = set()
 
@@ -30,17 +30,19 @@ def init(db, domain, level, wordlist, hideWildcards, hideFindings, threads):
 		if row.subdomain:
 			base.add(row.subdomain)
 
-	for row in db.query(Unresolved).filter(Unresolved.domain == domain):
-		if row.subdomain:
-			base.add(row.subdomain)
+	if not excludeUnresolved:
+		for row in db.query(Unresolved).filter(Unresolved.domain == domain):
+			if row.subdomain:
+				base.add(row.subdomain)
 
 	words = [line.strip() for line in wordlist.readlines()]
 	wordlist.close()
 
 	for i in range(1, level+1):
-		extracted.update(extract_subdomains(base, level))
+		extracted.update(extract_subdomains(base, i))
 	
 	chunkSize = int(len(extracted) / (int((len(words) * len(extracted)) / 500000) + 1))
+	if chunkSize == 0: chunkSize = 1
 
 	if len(extracted) <= chunkSize:
 		print("{0} {1} {2}".format(colored("\n[*]-Performing expansions on", "yellow"), colored(len(extracted), "cyan"), colored("subdomains...", "yellow")))
@@ -60,6 +62,8 @@ def init(db, domain, level, wordlist, hideWildcards, hideFindings, threads):
 		expansions = set()
 
 		for subdomain in chunk:
+			expansions.add(f"{subdomain}")
+
 			for word in words:
 				expansions.add(f"{word}.{subdomain}")
 

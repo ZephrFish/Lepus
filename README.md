@@ -66,7 +66,7 @@ The Collectors mode collects subdomains from the following services:
 |[HackerTarget](https://hackertarget.com/)|Optional|
 |[HunterIO](https://hunter.io/)|Yes|
 |[IntelX](https://intelx.io/)|Yes|
-|[LeakIX](https://leakix.net/)|Yes|
+|[LeakIX](https://leakix.net/)|No|
 |[Maltiverse](https://maltiverse.com/)|No|
 |[Netlas](https://netlas.io/)|Yes|
 |[PassiveTotal](https://www.riskiq.com/products/passivetotal/)|Yes|
@@ -357,13 +357,13 @@ The identification module for frontable domains uses a list of signatures in ord
 ## Arguments
 
 ```
-usage: lepus.py [-h] [-w WORDLIST] [-hw] [-hf] [-t THREADS] [-nc] [-zt] [--permutate]
-                [-pw PERMUTATION_WORDLIST] [--expand] [-ed EXPAND_DEPTH] [-ew EXPAND_WORDLIST] [--enrich]
-                [-el ENRICH_LENGTH] [--gpt] [-gg GPT_GIVE] [-gr GPT_RECEIVE] [-gc GPT_CONCURRENT]
-                [-gl GPT_LOOP] [--reverse] [-ripe] [-r RANGES] [-or] [--markovify] [-ms MARKOV_STATE]
-                [-ml MARKOV_LENGTH] [-mq MARKOV_QUANTITY] [--regulate] [-rt REG_THRESHOLD]
-                [-rmr REG_MAX_RATION] [-rml REG_MAX_LENGTH] [-rdl REG_DIST_LOW] [-rdh REG_DIST_HIGH]
-                [--portscan] [-p PORTS] [--takeover] [--front] [-f] [-v]
+usage: lepus.py [-h] [-w WORDLIST] [-eu] [-hw] [-hf] [-t THREADS] [-nc] [-zt] [--permutate]
+                [-pw PERMUTATION_WORDLIST] [--expand] [-ed EXPAND_DEPTH] [-ew EXPAND_WORDLIST]
+                [--enrich] [-el ENRICH_LENGTH] [--gpt] [-gg GPT_GIVE] [-gr GPT_RECEIVE]
+                [-gc GPT_CONCURRENT] [-gl GPT_LOOP] [--reverse] [-ripe] [-r RANGES] [-or] [--markovify]
+                [-ms MARKOV_STATE] [-ml MARKOV_LENGTH] [-mq MARKOV_QUANTITY] [--regulate]
+                [-rt REG_THRESHOLD] [-rmr REG_MAX_RATION] [-rml REG_MAX_LENGTH] [-rdl REG_DIST_LOW]
+                [-rdh REG_DIST_HIGH] [--portscan] [-p PORTS] [--takeover] [--front] [-f] [-v]
                 domain
 
 Infrastructure OSINT
@@ -375,6 +375,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -w WORDLIST, --wordlist WORDLIST
                         wordlist with subdomains
+  -eu, --exclude-unresolved
+                        exclude unresolved domains from all modules
   -hw, --hide-wildcards
                         hide wildcard resolutions
   -hf, --hide-findings  hide all findings from all modules (only write to db and files)
@@ -403,8 +405,8 @@ optional arguments:
   -gl GPT_LOOP, --gpt-loop GPT_LOOP
                         how many times to run each query [default is 1]
   --reverse             perform reverse dns lookups on resolved public IP addresses
-  -ripe, --ripe         query ripe database with the 2nd level domain for networks to be used for reverse
-                        lookups
+  -ripe, --ripe         query ripe database with the 2nd level domain for networks to be used for
+                        reverse lookups
   -r RANGES, --ranges RANGES
                         comma seperated ip ranges to perform reverse dns lookups on
   -or, --only-ranges    use only ranges provided with -r or -ripe and not all previously identified IPs

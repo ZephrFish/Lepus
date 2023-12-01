@@ -32,20 +32,30 @@ def init(domain):
 				params = {"domain": domain, "page": page, "page_size": perPage}
 
 				response = requests.get(url, headers=headers, params=params)
-				results = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), response.text)
-				resultCount = loads(response.text)["metadata"]["result_count"]
-				
-				if resultCount % perPage > 0:
-					maxPages = int(resultCount / perPage) + 1
-				else:
-					maxPages = int(resultCount / perPage)
 
-				if results:
-					RHL.extend([res.lower() for res in results])
-					RHL = set(RHL)
+				if response.status_code == 200:
+					results = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), response.text)
+					resultCount = loads(response.text)["metadata"]["result_count"]
+					
+					if resultCount % perPage > 0:
+						maxPages = int(resultCount / perPage) + 1
+					else:
+						maxPages = int(resultCount / perPage)
+
+					if results:
+						RHL.extend([res.lower() for res in results])
+						RHL = set(RHL)
+					
+					page += 1
+					sleep(2)
 				
-				page += 1
-				sleep(2)
+				else:
+					error_message = response.json()['message']
+
+					if "limit has been reached" in error_message:
+						print("  \__", colored("Your API credits have been exhausted.", "red"))
+					
+					return set(RHL)
 			
 			RHL = set(RHL)
 
@@ -68,6 +78,6 @@ def init(domain):
 			print("  \__", colored(errt, "red"))
 			return RHL
 		
-#		except Exception:
-#			print("  \__", colored("Something went wrong!", "red"))
-#			return RHL
+		except Exception:
+			print("  \__", colored("Something went wrong!", "red"))
+			return RHL

@@ -316,11 +316,19 @@ def exportFindings(db, domain, old_resolved, interrupt):
 
 	with open("{0}/{1}".format(path, "unresolved.csv"), "w") as unresolved:
 		for row in db.query(Unresolved.subdomain).filter(Unresolved.domain == domain).order_by(Unresolved.subdomain):
-			unresolved.write("{0}.{1}\n".format(row.subdomain, domain))
+			if row.subdomain == "":
+				unresolved.write("{0}\n".format(domain))
+			
+			else:
+				unresolved.write("{0}.{1}\n".format(row.subdomain, domain))
 
 	with open("{0}/{1}".format(path, "wildcards.csv"), "w") as wildcards:
 		for row in db.query(Wildcard).filter(Wildcard.domain == domain).order_by(Wildcard.subdomain):
-			wildcards.write("{0}.{1}|{2}\n".format(row.subdomain, domain, row.address))
+			if row.subdomain == "":
+				wildcards.write("{0}|{1}\n".format(domain, row.address))
+			
+			else:
+				wildcards.write("{0}.{1}|{2}\n".format(row.subdomain, domain, row.address))
 
 	with open("{0}/{1}".format(path, "asn.csv"), "w") as asn:
 		for row in db.query(ASN).filter(ASN.domain == domain).order_by(ASN.id):
@@ -340,11 +348,19 @@ def exportFindings(db, domain, old_resolved, interrupt):
 
 	with open("{0}/{1}".format(path, "takeovers.csv"), "w") as takeovers:
 		for row in db.query(Takeover).filter(Takeover.domain == domain).order_by(Takeover.subdomain):
-			takeovers.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
+			if row.subdomain == "":
+				takeovers.write("{0}|{1}|{2}\n".format(domain, row.provider, row.signature))
+
+			else:
+				takeovers.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
 
 	with open("{0}/{1}".format(path, "frontable.csv"), "w") as fronts:
 		for row in db.query(Front).filter(Front.domain == domain).order_by(Front.subdomain):
-			fronts.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
+			if row.subdomain == "":
+				fronts.write("{0}|{1}|{2}\n".format(domain, row.provider, row.signature))
+
+			else:
+				fronts.write("{0}.{1}|{2}|{3}\n".format(row.subdomain, domain, row.provider, row.signature))
 
 	for exported_file in listdir(path):
 		if stat("{0}/{1}".format(path, exported_file)).st_size == 0:

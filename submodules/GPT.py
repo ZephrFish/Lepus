@@ -63,7 +63,7 @@ def generateWithKey(key, domain, gptGive, gptReceive, gptLoop, chunk):
 	return subdomains
 
 
-def init(db, domain, gptGive, gptReceive, gptConcurrent, gptLoop, hideWildcards, hideFindings, threads):
+def init(db, domain, gptGive, gptReceive, gptConcurrent, gptLoop, hideWildcards, hideFindings, excludeUnresolved, threads):
 	base = set()
 	key = getKey()
 
@@ -75,9 +75,10 @@ def init(db, domain, gptGive, gptReceive, gptConcurrent, gptLoop, hideWildcards,
 		if row.subdomain:
 			base.add(row.subdomain)
 
-	for row in db.query(Unresolved).filter(Unresolved.domain == domain):
-		if row.subdomain:
-			base.add(row.subdomain)
+	if not excludeUnresolved:
+		for row in db.query(Unresolved).filter(Unresolved.domain == domain):
+			if row.subdomain:
+				base.add(row.subdomain)
 
 	chunkSize = gptGive
 

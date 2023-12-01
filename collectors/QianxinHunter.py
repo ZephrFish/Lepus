@@ -34,7 +34,7 @@ def init(domain):
 				QH = list(QH)
 				params = {"api-key": QIANXIN_API_KEY, "search": search, "page": page, "page_size": perPage, "is_web": 3}
 
-				response = requests.get(url, headers=headers, params=params)
+				response = requests.get(url, headers=headers, params=params, timeout=30)
 				results = findall("([\w\d][\w\d\-\.]*\.{0})".format(domain.replace(".", "\.")), response.text)
 
 				if loads(response.text)["code"] == 40204:

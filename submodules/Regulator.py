@@ -233,7 +233,7 @@ def is_good_rule(regex: str, nkeys: int, threshold: int, max_ratio: float) -> bo
 	return nwords < threshold or (nwords / nkeys) < max_ratio
 
 
-def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDistHigh, hideWildcards, hideFindings, threads):
+def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDistHigh, hideWildcards, hideFindings, excludeUnresolved, threads):
 	global DNS_CHARS, MEMO
 
 	trie = datrie.Trie(DNS_CHARS)
@@ -249,9 +249,10 @@ def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDis
 		if row.subdomain:
 			base.add(row.subdomain)
 
-	for row in db.query(Unresolved).filter(Unresolved.domain == domain):
-		if row.subdomain:
-			base.add(row.subdomain)
+	if not excludeUnresolved:
+		for row in db.query(Unresolved).filter(Unresolved.domain == domain):
+			if row.subdomain:
+				base.add(row.subdomain)
 
 	known_hosts = sorted(list(set([f"{subdomain}.{domain}" for subdomain in base])))
 
@@ -347,7 +348,7 @@ def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDis
 		with ThreadPoolExecutor(max_workers=1) as executor:
 			tasks = {executor.submit(DankGenerator, rule.strip()): rule for rule in baseChunk}
 			print("{0} {1}".format(colored("\n[*]-Generating candidates for chunk", "yellow"), colored(str(iteration) + "/" + str(numberOfChunks), "cyan")))
-			
+
 			try:
 				completed = as_completed(tasks)
 
@@ -361,8 +362,12 @@ def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDis
 					completed = tqdm(completed, total=len(baseChunk), desc="  \__ {0}".format(colored("Progress", "cyan")), dynamic_ncols=True, leave=leaveFlag)
 
 				for task in completed:
-					result = task.result()
-					generators.append(result)
+					try:
+						result = task.result()
+						generators.append(result)
+
+					except AssertionError:
+						pass
 
 			except KeyboardInterrupt:
 				completed.close()
@@ -370,7 +375,7 @@ def init(db, domain, regThreshold, regMaxRatio, regMaxLength, regDistLow, regDis
 				utilities.MiscHelpers.exportFindings(db, domain, [], True)
 				executor.shutdown(wait=False)
 				exit(-1)
-		
+	
 		iteration += 1
 		regulated = set()
 

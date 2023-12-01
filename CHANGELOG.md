@@ -14,6 +14,7 @@
 11. New Redhunt Labs collector
 12. New Columbus Elmasy collector
 13. Added a "hide findings" flag to suppress findings from being printed to the console
+14. Added certain new wordlists for different cases
 
 ### --- Bug Fixes
 1. Fixed a bug in PassiveTotal collector in order to discard trash when there is a wildcard
@@ -22,12 +23,15 @@
 4. Fixed WebScout collector to handle their new API
 5. Fixed ZoomEye collector to handle their new API
 6. Applied a filter to remove already known subdomains from Permutations and Enrich
+7. Applied a fix on how certain types of results are written to file
+8. Fixes in the signatures of several takeovers
 
 ### --- Misc
 1. Updated wordlists
 2. Marked certain collectors for potential deprecation
 3. Small change in how Markov chunks are generated
 4. Bumped wildcard genetion chunk size to 100k from 10k
+5. Revamped takeover submodule to work with templates
 
 # Version 3.4.1
 

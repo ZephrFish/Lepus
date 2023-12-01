@@ -94,16 +94,17 @@ def createWords(length, subdomains):
 	return words
 
 
-def init(db, domain, enrichLength, hideWildcards, hideFindings, threads):
+def init(db, domain, enrichLength, hideWildcards, hideFindings, excludeUnresolved, threads):
 	base = set()
 
 	for row in db.query(Resolution).filter(Resolution.domain == domain, Resolution.isWildcard == False):
 		if row.subdomain:
 			base.add(row.subdomain)
 
-	for row in db.query(Unresolved).filter(Unresolved.domain == domain):
-		if row.subdomain:
-			base.add(row.subdomain)
+	if not excludeUnresolved:
+		for row in db.query(Unresolved).filter(Unresolved.domain == domain):
+			if row.subdomain:
+				base.add(row.subdomain)
 
 	if len(base) <= 100:
 		print("{0} {1} {2}".format(colored("\n[*]-Performing enrichment on", "yellow"), colored(len(base), "cyan"), colored("hostnames...", "yellow")))

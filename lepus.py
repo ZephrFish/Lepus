@@ -38,6 +38,7 @@ if __name__ == "__main__":
 	parser = ArgumentParser(prog="lepus.py", description="Infrastructure OSINT")
 	parser.add_argument("domain", help="domain to search")
 	parser.add_argument("-w", "--wordlist", action="store", dest="wordlist", help="wordlist with subdomains", type=FileType("r"))
+	parser.add_argument("-eu", "--exclude-unresolved", action="store_true", dest="excludeUnresolved", help="exclude unresolved domains from all modules", default=False)
 	parser.add_argument("-hw", "--hide-wildcards", action="store_true", dest="hideWildcards", help="hide wildcard resolutions", default=False)
 	parser.add_argument("-hf", "--hide-findings", action="store_true", dest="hideFindings", help="hide all findings from all modules (only write to db and files)", default=False)
 	parser.add_argument("-t", "--threads", action="store", dest="threads", help="number of threads [default is 100]", type=int, default=100)
@@ -141,26 +142,30 @@ if __name__ == "__main__":
 			collect()
 
 			if args.permutate:
-				submodules.Permutations.init(db, args.domain, args.permutation_wordlist, args.hideWildcards, args.hideFindings, args.threads)
+				submodules.Permutations.init(db, args.domain, args.permutation_wordlist, args.hideWildcards, args.hideFindings, args.excludeUnresolved, args.threads)
 
 			if args.expand:
-				submodules.Expand.init(db, args.domain, args.expand_depth, args.expand_wordlist, args.hideWildcards, args.hideFindings, args.threads)
+				submodules.Expand.init(db, args.domain, args.expand_depth, args.expand_wordlist, args.hideWildcards, args.hideFindings, args.excludeUnresolved, args.threads)
 
 			if args.enrich:
-				submodules.Enrich.init(db, args.domain, args.enrich_length, args.hideWildcards, args.hideFindings, args.threads)
+				submodules.Enrich.init(db, args.domain, args.enrich_length, args.hideWildcards, args.hideFindings, args.excludeUnresolved, args.threads)
 
 			if args.reverse:
 				submodules.ReverseLookups.init(db, args.domain, args.ripe, args.ranges, args.only_ranges, args.hideFindings, args.threads)
 
 			if args.markovify:
-				submodules.Markov.init(db, args.domain, args.markov_state, args.markov_length, args.markov_quantity, args.hideWildcards, args.hideFindings, args.threads)
+				submodules.Markov.init(db, args.domain, args.markov_state, args.markov_length, args.markov_quantity, args.hideWildcards, args.hideFindings, args.excludeUnresolved, args.threads)
 
 			if args.gpt:
-				submodules.GPT.init(db, args.domain, args.gpt_give, args.gpt_receive, args.gpt_concurrent, args.gpt_loop, args.hideWildcards, args.hideFindings, args.threads)
+				submodules.GPT.init(db, args.domain, args.gpt_give, args.gpt_receive, args.gpt_concurrent, args.gpt_loop, args.hideWildcards, args.hideFindings, args.excludeUnresolved, args.threads)
 
 			if args.regulate:
-				submodules.Regulator.init(db, args.domain, args.reg_threshold, args.reg_max_ration, args.reg_max_length, args.reg_dist_low, args.reg_dist_high, args.hideWildcards, args.hideFindings, args.threads)
-
+				try:
+					submodules.Regulator.init(db, args.domain, args.reg_threshold, args.reg_max_ration, args.reg_max_length, args.reg_dist_low, args.reg_dist_high, args.hideWildcards, args.excludeUnresolved, args.hideFindings, args.threads)
+				except MemoryError:
+					collect()
+					print("  \__", colored("MemoryError, module execution failed...", "red"))
+					
 			utilities.ScanHelpers.massRDAP(db, args.domain, args.hideFindings, args.threads)
 
 			if args.portscan:

@@ -1,13 +1,15 @@
 from time import time
 from tqdm import tqdm
 from gc import collect
+from requests import get
 from sys import stderr,stdout
 from dns.query import xfr
 from ipwhois import IPWhois
 from dns.zone import from_xfr
 from termcolor import colored
 from ipaddress import ip_address
-from dns.resolver import Resolver
+from warnings import simplefilter
+from dns.resolver import Resolver, NXDOMAIN, NoAnswer, NoNameservers, Timeout
 from collections import OrderedDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import FlushError
@@ -16,6 +18,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from socket import getaddrinfo, gethostbyaddr, socket, AF_INET, AF_INET6, SOCK_STREAM
 from utilities.DatabaseHelpers import Record, Wildcard, Resolution, Unresolved, ASN, Network, OpenPort
 import utilities.MiscHelpers
+
+
+simplefilter("ignore")
 
 
 def zoneTransfer(db, domain):
@@ -730,3 +735,48 @@ def massRDAP(db, domain, hideFindings, threads):
 
 		for row in db.query(Network).filter(Network.domain == domain).order_by(Network.cidr):
 			print("      \__ {0}: {1}, {2}: {3}, {4}: {5}".format(colored("CIDR", "cyan"), colored(row.cidr, "yellow"), colored("Identifier", "cyan"), colored(row.identifier, "yellow"), colored("Country", "cyan"), colored(row.country, "yellow")))
+
+
+def findSignatures(domainToTry, signatures, neededMatches):
+	numberOfMatches = 0
+	headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"}
+
+	try:
+		for signature in signatures:
+			if signature in str(get("http://" + domainToTry, headers=headers, verify=False).content, "utf-8"):
+				numberOfMatches += 1
+
+				if neededMatches <= numberOfMatches:
+					return True
+
+	except Exception:
+		pass
+
+	try:
+		for signature in signatures:
+			if signature in str(get("https://" + domainToTry, headers=headers, verify=False).content, "utf-8"):
+				numberOfMatches += 1
+
+				if neededMatches <= numberOfMatches:
+					return True
+
+	except Exception:
+		pass
+
+	return False
+
+def findNX(domainToTry):
+	resolver = Resolver()
+	resolver.timeout = 1
+	resolver.lifetime = 1
+
+	try:
+		resolver.query(domainToTry)
+
+	except NXDOMAIN:
+		return True
+
+	except Exception:
+		pass
+
+	return False
